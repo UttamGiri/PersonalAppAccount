@@ -1,0 +1,56 @@
+package com.personal.api.account.ui.io.controllers;
+
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.lang.reflect.Type;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.personal.api.account.ui.data.AccountEntity;
+import com.personal.api.account.ui.service.AccountService;
+import com.personal.api.account.ui.ui.model.AccountResponseModel;
+
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+@RestController
+@RequestMapping("/users/{id}/accounts")
+public class AccountController {
+    
+    @Autowired
+    AccountService accountService;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+    @GetMapping( 
+            produces = { 
+                MediaType.APPLICATION_JSON_VALUE,
+                MediaType.APPLICATION_XML_VALUE,
+            })
+    public List<AccountResponseModel> userAlbums(@PathVariable String id) {
+
+        List<AccountResponseModel> returnValue = new ArrayList<>();
+        
+        List<AccountEntity> accountEntities = accountService.getAccounts(id);
+        
+        if(accountEntities == null || accountEntities.isEmpty())
+        {
+            return returnValue;
+        }
+        
+        Type listType = new TypeToken<List<AccountResponseModel>>(){}.getType();
+ 
+        returnValue = new ModelMapper().map(accountEntities, listType);
+        logger.info("Returning " + returnValue.size() + " accounts");
+        return returnValue;
+    }
+    
+
+}
